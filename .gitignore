@@ -1,0 +1,8 @@
+**/.env
+**/*.secret
+certs
+**/*.bkp
+postgres_data
+pm2/node_modules
+**/__pycache__
+keycloak_backend/*.env
