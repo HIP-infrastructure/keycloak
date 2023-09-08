@@ -39,22 +39,23 @@ def main():
             sys.exit('Missing required argument: <%s>' %(arg))
 
     try:
-        keycloak_connection = KeycloakOpenIDConnection(
-                                server_url=args['server_url'], 
-                                username=args['admin_username'], 
-                                password=args['admin_password'], 
-                                realm_name='master', 
-                                verify=True)       
-        keycloak_adm = KeycloakAdmin(connection=keycloak_connection)
-        keycloak_adm.connection.realm_name = args['realm_name'] # Change to wanted realm
-        print('Connected to Keycloak server <%s> with realm <%s>' %(args['server_url'], args['realm_name']))
+        print('coucou from script')
+        # keycloak_connection = KeycloakOpenIDConnection(
+        #                         server_url=args['server_url'], 
+        #                         username=args['admin_username'], 
+        #                         password=args['admin_password'], 
+        #                         realm_name='master', 
+        #                         verify=True)       
+        # keycloak_adm = KeycloakAdmin(connection=keycloak_connection)
+        # keycloak_adm.connection.realm_name = args['realm_name'] # Change to wanted realm
+        # print('Connected to Keycloak server <%s> with realm <%s>' %(args['server_url'], args['realm_name']))
         
-        #Try to create a role and if it does exist, exit
-        try:
-            wanted_role = keycloak_adm.create_realm_role(payload={"name": args['user_role'], "description": ""})
-            print('Role <%s> created in realm <%s>' %(args['user_role'], args['realm_name']))
-        except Exception as e:
-            sys.exit('Role <%s> already exist in realm <%s>' %(args['user_role'], args['realm_name']))
+        # #Try to create a role and if it does exist, exit
+        # try:
+        #     wanted_role = keycloak_adm.create_realm_role(payload={"name": args['user_role'], "description": ""})
+        #     print('Role <%s> created in realm <%s>' %(args['user_role'], args['realm_name']))
+        # except Exception as e:
+        #     sys.exit('Role <%s> already exist in realm <%s>' %(args['user_role'], args['realm_name']))
 
     except Exception as e:
         sys.exit(e)
