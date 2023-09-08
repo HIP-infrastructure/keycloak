@@ -1,0 +1,62 @@
+version: '3'
+
+volumes:
+  postgres_data:
+      driver: local
+
+services:
+  postgres:
+      image: postgres
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: ${DB_PASSWORD}
+        PGDATA: /var/lib/postgresql/data/pgdata
+      volumes:
+        - ./postgres_data:/var/lib/postgresql/data
+  keycloak:
+      container_name: keycloak
+      image: quay.io/keycloak/keycloak:21.1.2
+      command: start
+      # command: start-dev
+      environment:
+        KC_FEATURES:
+          authorization
+          token-exchange
+          docker
+          impersonation
+          scripts
+          upload-scripts
+          web-authn
+          client-policies
+          dynamic-scopes
+        KC_DB: postgres
+        KC_DB_URL_HOST: postgres
+        KC_DB_USERNAME: ${DB_USER}        
+        KC_DB_PASSWORD: ${DB_PASSWORD}
+        DB_DATABASE: keycloak
+        DB_SCHEMA: public
+        KEYCLOAK_USER: ${KEYCLOAK_USER}
+        KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+        KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+        KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+        #when in start-dev mode
+        # KEYCLOAK_FRONTEND_URL: http://keycloak.thehip.app
+        #try with cert keys
+        KC_HOSTNAME: keycloak.thehip.app
+        KC_HOSTNAME_ADMIN: keycloak.thehip.app
+        #INFORMATION for KC_PROXY: none is the supposed default value, but if not specified here we
+        #can not access the admin console. When using caddy use edge, it automatically 
+        #sets http.enabled=true and http.proxy-address-forwarding=true
+        KC_PROXY: 'edge'
+#        KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/tls.crt
+#        KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/tls.key
+      ports:
+        - 127.0.0.1:8080:8080
+        - 127.0.0.1:8443:8443
+      depends_on:
+        - postgres
+      volumes:
+#        - ./certs/fullchain.pem:/etc/x509/https/tls.crt
+#        - ./certs/privkey.pem:/etc/x509/https/tls.key
+        - ./chuv-theme:/opt/keycloak/themes/chuv-theme
