@@ -1,20 +1,14 @@
-import os
-import sys
-import json
-import select
 import pprint
-import argparse
-
 pp = pprint.PrettyPrinter(indent=4)
-
-from keycloak.exceptions import raise_error_from_response, KeycloakGetError
-from keycloak.urls_patterns import URL_ADMIN_CLIENT_ROLE
 from keycloak import KeycloakAdmin
 from keycloak import KeycloakOpenIDConnection
 
+__author__ = "Florian SIPP"
+__email__ = "florian.sipp@chuv.ch"
+
 class Hipcloak:
     _kc_admin = None
-
+    
     def __init__(self, server_url=None, username=None, password=None, realm_name='master'):
         keycloak_connection = KeycloakOpenIDConnection(
             server_url=server_url,
