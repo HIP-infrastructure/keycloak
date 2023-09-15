@@ -208,7 +208,7 @@ def get_user_groups(user_name):
   keycloak_adm.switch_realm(realm_name)
   
   users_from_group = []
-  group_list = keycloak_adm.get_group_for_user(user_name)
+  group_list = keycloak_adm.get_groups_for_user(user_name)
 
   group_info = {}
   for current_group in group_list:
@@ -271,7 +271,7 @@ def get_user(user_name):
         wanted_user = keycloak_adm.get_user(user_name)
         
         # Check if the user is in the "Projects Administrators" group
-        group_id_admin = keycloak_adm.get_group_id_from_path("/Projects Administrators")
+        group_id_admin = keycloak_adm.get_group_details_from_path("/Projects Administrators")
         group_members = keycloak_adm.get_members_from_group(group_id_admin.get('id', ''))
         isAdmin = any(member.get('username') == wanted_user.get('username') for member in group_members)
 
@@ -279,7 +279,7 @@ def get_user(user_name):
             'id': wanted_user.get('username', ''),
             'displayName': f"{wanted_user.get('firstName', '')} {wanted_user.get('lastName', '')}",
             'email': wanted_user.get('email', ''),
-            'groups': keycloak_adm.get_group_for_user(wanted_user.get('username', '')),
+            'groups': keycloak_adm.get_groups_for_user(wanted_user.get('username', '')),
             'enabled': wanted_user.get('enabled', False),
             'hasProjectsAdminRole': isAdmin
         }
@@ -391,7 +391,7 @@ def delete_group(group_name):
         keycloak_adm.switch_realm(realm_name)
 
         group_path = f"/HIP-dev-projects/{group_name}"
-        group_id = keycloak_adm.get_group_id_from_path(group_path)
+        group_id = keycloak_adm.get_group_details_from_path(group_path)
         print('a')
         if group_id:
             keycloak_adm.delete_group(group_id['id'])
@@ -447,7 +447,7 @@ def get_all_groups():
         keycloak_adm.switch_realm(realm_name)
 
         group_path = "/HIP-dev-projects"
-        all_groups = keycloak_adm.get_group_id_from_path(group_path)
+        all_groups = keycloak_adm.get_group_details_from_path(group_path)
 
         groups_info = []
 
@@ -522,7 +522,7 @@ def add_user_to_group(group_name, role_name, user_name):
             case _:
                 return jsonify({'error': 'Role not found, not doing anything'}), 400
 
-        group_id = keycloak_adm.get_group_id_from_path(group_path)
+        group_id = keycloak_adm.get_group_details_from_path(group_path)
         keycloak_adm.add_user_to_group(user_name, group_id['id'])
 
         return '', 201
@@ -579,7 +579,7 @@ def remove_user_from_group(group_name, role_name, user_name):
             case _:
                 return jsonify({'error': 'Role not found, not doing anything'}), 400
 
-        group_id = keycloak_adm.get_group_id_from_path(group_path)
+        group_id = keycloak_adm.get_group_details_from_path(group_path)
         keycloak_adm.remove_user_from_group(user_name, group_id['id'])
 
         return '', 201
@@ -625,8 +625,8 @@ def get_group_info(group_name):
         keycloak_adm.switch_realm(realm_name)
 
         group_path = f"/HIP-dev-projects/{group_name}"
-        group_id = keycloak_adm.get_group_id_from_path(group_path)
-        group_id_admin = keycloak_adm.get_group_id_from_path(f"{group_path}/administrators")
+        group_id = keycloak_adm.get_group_details_from_path(group_path)
+        group_id_admin = keycloak_adm.get_group_details_from_path(f"{group_path}/administrators")
 
         if group_id is None:
             return jsonify({'error': 'Group not found'}), 404
