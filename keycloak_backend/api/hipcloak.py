@@ -314,13 +314,9 @@ class Hipcloak:
                 print(f"User '{user_name}' does not exist.")
                 return False
 
-            success = self._kc_admin.group_user_add(user_id, group_id)
-            if success:
-                print(f"User '{user_name}' added to group with ID '{group_id}'.")
-                return True
-            else:
-                print(f"Failed to add user '{user_name}' to group with ID '{group_id}'.")
-                return False
+            self._kc_admin.group_user_add(user_id, group_id)
+            print(f"User '{user_name}' added to group with ID '{group_id}'.")
+            return True
         except Exception as e:
             print(f"Error adding user '{user_name}' to group with ID '{group_id}': {str(e)}")
             return False
