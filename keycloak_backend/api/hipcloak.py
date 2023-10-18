@@ -228,6 +228,14 @@ class Hipcloak:
             print(f"Error retrieving group details from path '{group_path}': {str(e)}")
             return None
 
+    def create_root_group(self, group_title):
+        try:
+            payload = {"name": group_title}
+            return self._kc_admin.create_group(payload, None, True)
+        except Exception as e:
+            print(f"Error creating root group '{group_title}': {str(e)}")
+            return None
+
     def create_group(self, group_title, parent_name="", isCollab=True):
         """
         Create a new group in the Keycloak realm with the provided information.
@@ -244,10 +252,11 @@ class Hipcloak:
             payload = {"name": group_title}
 
             if isCollab:
-                if not parent_name:
-                    parent_id = self.get_group_details_from_path("/HIP-dev-projects")
-                else:
-                    parent_id = self.get_group_details_from_path("/HIP-dev-projects/" + parent_name)
+                # if not parent_name:
+                #     parent_id = self.get_group_details_from_path("/HIP-dev-projects")
+                # else:
+                #     parent_id = self.get_group_details_from_path("/HIP-dev-projects/" + parent_name)
+                parent_id = self.get_group_details_from_path(parent_name)
                 if parent_id:
                     return self._kc_admin.create_group(payload, parent_id['id'], True)
                 else:

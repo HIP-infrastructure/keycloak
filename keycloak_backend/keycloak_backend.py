@@ -200,11 +200,11 @@ Example Usage:
 ```http
 GET /projects/users/john_doe?realm=my_realm&type=projects
 """
-@app.route('/projects/users/<string:user_name>', methods=['GET'])
+@app.route('/projects/<string:root_path>/users/<string:user_name>', methods=['GET'])
 #@role_required('app-admin')
-def get_user_groups(user_name):
+def get_user_groups(root_path, user_name):
   realm_name = request.args.get('realm')
-  query_type = request.args.get('type')
+  #query_type = request.args.get('type')
   keycloak_adm.switch_realm(realm_name)
   
   users_from_group = []
@@ -212,9 +212,10 @@ def get_user_groups(user_name):
 
   group_info = {}
   for current_group in group_list:
-    if '/HIP-dev-projects' in current_group['path'] and not '/administrators' in current_group['path']:
+    if root_path in current_group['path'] and not '/administrators' in current_group['path']:
+    #if '/HIP-dev-projects' in current_group['path'] and not '/administrators' in current_group['path']:
         group_info = {}
-        group_info['type'] = query_type
+        #group_info['type'] = query_type
         group_members = keycloak_adm.get_members_from_group(current_group['id'])
 
         group_info['name'] = current_group['name']
@@ -226,7 +227,8 @@ def get_user_groups(user_name):
         group_info['admins'] = []
         
         users_from_group += [group_info]
-    elif '/HIP-dev-projects' in current_group['path'] and '/administrators' in current_group['path']:
+    #elif '/HIP-dev-projects' in current_group['path'] and '/administrators' in current_group['path']:
+    elif root_path in current_group['path'] and '/administrators' in current_group['path']:
       group_members = keycloak_adm.get_members_from_group(current_group['id'])
       for member in group_members:
           group_info['admins'] += [member['username']]
@@ -261,18 +263,18 @@ Example Usage:
 ```http
 GET /identity/users/john_doe?realm=my_realm
 """
-@app.route('/identity/users/<string:user_name>', methods=['GET'])
+@app.route('/identity/projects/<string:root_path>/users/<string:user_name>', methods=['GET'])
 @role_required('app-admin')
-def get_user(user_name):
+def get_user(root_path, user_name):
     try:
         realm_name = request.args.get('realm')
         keycloak_adm.switch_realm(realm_name)
 
         wanted_user = keycloak_adm.get_user(user_name)
-        
-        # Check if the user is in the "Projects Administrators" group
-        group_id_admin = keycloak_adm.get_group_details_from_path("/Projects Administrators")
+        # Check if the user is in the "root_path" group , ie "HIP-dip-dev-projects-administrators"
+        group_id_admin = keycloak_adm.get_group_details_from_path(root_path)
         group_members = keycloak_adm.get_members_from_group(group_id_admin.get('id', ''))
+        
         isAdmin = any(member.get('username') == wanted_user.get('username') for member in group_members)
 
         user_info = {
@@ -290,6 +292,24 @@ def get_user(user_name):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/identity/groupsroot', methods=['POST'])
+@role_required('app-admin')
+def create_root_collab():
+    try:
+        print('coucou')
+        realm_name = request.args.get('realm')
+        keycloak_adm.switch_realm(realm_name)
+
+        content = request.get_json()
+        role_name = content['name']
+        role_description = content.get('description', '')  # Provide a default value if description is missing
+
+        wanted_role = keycloak_adm.create_root_group(role_name)
+
+        return '', 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
 """
 Create a new group in the Keycloak identity and access management system within a specified realm, including an 'administrators' sub-group.
 
@@ -338,11 +358,14 @@ def create_group():
         content = request.get_json()
         admin_name = content['adminId']
         role_name = content['name']
+        root_name = content['root']
+        print("path : " + root_name)
+        print("path : " + role_name)
         role_description = content.get('description', '')  # Provide a default value if description is missing
 
         # Create the main role and the administrators role
-        wanted_role = keycloak_adm.create_group(role_name)
-        wanted_role_admin = keycloak_adm.create_group("administrators", role_name)
+        wanted_role = keycloak_adm.create_group(role_name, root_name)
+        wanted_role_admin = keycloak_adm.create_group("administrators", root_name + "/" + role_name)
 
         # Create corresponding role for the collab : needs to be prefixed with "group-"" at the moment 
         role_name = "group-" + role_name
@@ -390,15 +413,15 @@ Example Usage:
 ```http
 DELETE /identity/groups/my_group?realm=my_realm
 """
-@app.route('/identity/groups/<string:group_name>', methods=['DELETE'])
+@app.route('/identity/groups/<string:root_path>/<string:group_name>', methods=['DELETE'])
 @role_required('app-admin')
-def delete_group(group_name):
+def delete_group(root_path, group_name):
     try:
         realm_name = request.args.get('realm')
         keycloak_adm.switch_realm(realm_name)
 
         role_name = "group-" + group_name
-        group_path = f"/HIP-dev-projects/{group_name}"
+        group_path = f"{root_path}/{group_name}"
         group_id = keycloak_adm.get_group_details_from_path(group_path)
         
         # Unassign role from group
@@ -452,20 +475,21 @@ Example Usage:
 ```http
 GET /identity/groups?realm=my_realm
 """
-@app.route('/identity/groups', methods=['GET'])
+@app.route('/identity/groups/<string:root_path>', methods=['GET'])
 @role_required('app-admin')
-def get_all_groups():
+def get_all_groups(root_path):
     try:
         realm_name = request.args.get('realm')
         keycloak_adm.switch_realm(realm_name)
 
-        group_path = "/HIP-dev-projects"
-        all_groups = keycloak_adm.get_group_details_from_path(group_path)
+        #group_path = "/HIP-dev-projects"
+        all_groups = keycloak_adm.get_group_details_from_path(root_path)
 
         groups_info = []
 
         for current_group in all_groups.get('subGroups', []):
-            if '/HIP-dev-projects' in current_group.get('path', '') and '/administrators' not in current_group.get('path', ''):
+            #if '/HIP-dev-projects' in current_group.get('path', '') and '/administrators' not in current_group.get('path', ''):
+            if root_path in current_group.get('path', '') and '/administrators' not in current_group.get('path', ''):
                 group_info = {
                     'name': current_group.get('name', ''),
                     'description': '',
@@ -485,6 +509,21 @@ def get_all_groups():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/identity/groups/<string:root_path>/users/<string:user_name>', methods=['PUT'])
+@role_required('app-admin')
+def add_user_to_admin_group(root_path, user_name):
+    try:
+        realm_name = request.args.get('realm')
+        keycloak_adm.switch_realm(realm_name)
+
+        group_id = keycloak_adm.get_group_details_from_path(root_path)
+        keycloak_adm.add_user_to_group(user_name, group_id['id'])
+
+        return '', 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 """
 Add a user to a specified group or its 'administrators' sub-group within a Keycloak realm.
 
@@ -520,18 +559,18 @@ Example Usage:
 ```http
 PUT /identity/groups/my_group/member/users/john_doe?realm=my_realm
 """
-@app.route('/identity/groups/<string:group_name>/<string:role_name>/users/<string:user_name>', methods=['PUT'])
+@app.route('/identity/groups/<string:root_path>/<string:group_name>/<string:role_name>/users/<string:user_name>', methods=['PUT'])
 @role_required('app-admin')
-def add_user_to_group(group_name, role_name, user_name):
+def add_user_to_group(root_path, group_name, role_name, user_name):
     try:
         realm_name = request.args.get('realm')
         keycloak_adm.switch_realm(realm_name)
 
         match role_name:
             case 'member':
-                group_path = f"/HIP-dev-projects/{group_name}"
+                group_path = f"{root_path}/{group_name}"
             case 'admin':
-                group_path = f"/HIP-dev-projects/{group_name}/administrators"
+                group_path = f"{root_path}/{group_name}/administrators"
             case _:
                 return jsonify({'error': 'Role not found, not doing anything'}), 400
 
@@ -577,18 +616,18 @@ Example Usage:
 ```http
 DELETE /identity/groups/my_group/member/users/john_doe?realm=my_realm
 """
-@app.route('/identity/groups/<string:group_name>/<string:role_name>/users/<string:user_name>', methods=['DELETE'])
+@app.route('/identity/groups/<string:root_path>/<string:group_name>/<string:role_name>/users/<string:user_name>', methods=['DELETE'])
 @role_required('app-admin')
-def remove_user_from_group(group_name, role_name, user_name):
+def remove_user_from_group(root_path, group_name, role_name, user_name):
     try:
         realm_name = request.args.get('realm')
         keycloak_adm.switch_realm(realm_name)
 
         match role_name:
             case 'member':
-                group_path = f"/HIP-dev-projects/{group_name}"
+                group_path = f"{root_path}/{group_name}"
             case 'admin':
-                group_path = f"/HIP-dev-projects/{group_name}/administrators"
+                group_path = f"{root_path}/{group_name}/administrators"
             case _:
                 return jsonify({'error': 'Role not found, not doing anything'}), 400
 
@@ -630,14 +669,14 @@ Example Usage:
 ```http
 GET /identity/groups/my_group?realm=my_realm
 """
-@app.route('/identity/groups/<string:group_name>', methods=['GET'])
+@app.route('/identity/groups/<string:root_path>/<string:group_name>', methods=['GET'])
 @role_required('app-admin')
-def get_group_info(group_name):
+def get_group_info(root_path, group_name):
     try:
         realm_name = request.args.get('realm')
         keycloak_adm.switch_realm(realm_name)
 
-        group_path = f"/HIP-dev-projects/{group_name}"
+        group_path = root_path + f"/{group_name}"
         group_id = keycloak_adm.get_group_details_from_path(group_path)
         group_id_admin = keycloak_adm.get_group_details_from_path(f"{group_path}/administrators")
 
