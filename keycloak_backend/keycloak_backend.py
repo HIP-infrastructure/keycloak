@@ -201,7 +201,7 @@ Example Usage:
 GET /projects/users/john_doe?realm=my_realm&type=projects
 """
 @app.route('/projects/users/<string:user_name>', methods=['GET'])
-@role_required('app-admin')
+#@role_required('app-admin')
 def get_user_groups(user_name):
   realm_name = request.args.get('realm')
   query_type = request.args.get('type')
@@ -344,9 +344,16 @@ def create_group():
         wanted_role = keycloak_adm.create_group(role_name)
         wanted_role_admin = keycloak_adm.create_group("administrators", role_name)
 
+        # Create corresponding role for the collab : needs to be prefixed with "group-"" at the moment 
+        role_name = "group-" + role_name
+        role_for_group = keycloak_adm.add_role_to_realm(role_name)
+
         # Add the admin to both groups
         keycloak_adm.add_user_to_group(admin_name, wanted_role)
         keycloak_adm.add_user_to_group(admin_name, wanted_role_admin)
+
+        #Add role mapping to the group
+        keycloak_adm.add_role_to_group(wanted_role, role_for_group)
 
         return '', 201
     except Exception as e:
@@ -390,15 +397,21 @@ def delete_group(group_name):
         realm_name = request.args.get('realm')
         keycloak_adm.switch_realm(realm_name)
 
+        role_name = "group-" + group_name
         group_path = f"/HIP-dev-projects/{group_name}"
         group_id = keycloak_adm.get_group_details_from_path(group_path)
-        print('a')
+        
+        # Unassign role from group
+        keycloak_adm.remove_role_from_group(group_id, role_name)
+
+        # Delete corresponding roles
+        keycloak_adm.delete_role_from_realm(role_name)
+        
+        # Delete group
         if group_id:
             keycloak_adm.delete_group(group_id['id'])
-            print('b')
             return '', 204
         else:
-            print('c')
             return jsonify({'error': 'Group not found'}), 404
 
     except Exception as e:

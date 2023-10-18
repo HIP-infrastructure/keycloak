@@ -239,12 +239,6 @@ class Hipcloak:
 
         Returns:
             dict or None: A dictionary containing group details if the group is successfully created, or None if an error occurs.
-
-        Note:
-            This function creates a new group in the Keycloak realm with the provided title.
-            If the 'isCollab' flag is True, it can also specify a parent group using 'parent_name'.
-            If 'parent_name' is not provided, the group is created under the default parent group '/HIP-dev-projects'.
-            If 'parent_name' is provided but not found, it prints a message and returns None.
         """
         try:
             payload = {"name": group_title}
@@ -273,16 +267,13 @@ class Hipcloak:
             group_id (str): The ID of the group to be deleted.
 
         Returns:
-            bool: True if the group is successfully deleted, False if the group does not exist or an error occurs.
-
-        Note:
-            This function deletes a group from the Keycloak realm using its ID.
-            If the group is successfully deleted, it returns True.
-            If the group does not exist or an error occurs during deletion, it prints a message and returns False.
+            bool: True if the group is successfully deleted, False otherwise.
         """
         try:
             delete_result = self._kc_admin.delete_group(group_id)
+            print(delete_result)
             if delete_result:
+                print(f"Group with ID '{group_id}' deleted successfully.")
                 return True
             else:
                 print(f"Failed to delete group with ID '{group_id}'.")
@@ -300,12 +291,7 @@ class Hipcloak:
             group_id (str): The ID of the group where the user will be added.
 
         Returns:
-            bool: True if the user is successfully added to the group, False if the user or group does not exist or an error occurs.
-
-        Note:
-            This function adds a user to a group in the Keycloak realm using their username and the group's ID.
-            If the user and group both exist, and the user is successfully added, it returns True.
-            If the user or group does not exist or an error occurs during the operation, it prints a message and returns False.
+            bool: True if the user is successfully added to the group, False otherwise.
         """
         try:
             user_id = self._kc_admin.get_user_id(user_name)
@@ -347,10 +333,10 @@ class Hipcloak:
             success = self._kc_admin.group_user_remove(user_id, group_id)
             if success:
                 print(f"User '{user_name}' removed from group with ID '{group_id}'.")
-                return True
             else:
                 print(f"Failed to remove user '{user_name}' from group with ID '{group_id}'.")
-                return False
+
+            return success
         except Exception as e:
             print(f"Error removing user '{user_name}' from group with ID '{group_id}': {str(e)}")
             return False
@@ -364,22 +350,28 @@ class Hipcloak:
             description (str, optional): A description for the realm role. Default is an empty string.
 
         Returns:
-            dict or None: A dictionary containing the created realm role details if the role is successfully added, or None if the role already exists or an error occurs.
-
-        Note:
-            This function checks if a realm role with the provided name already exists in the Keycloak realm.
-            If the role exists, it returns None.
-            If the role does not exist, it creates the realm role with the provided name and optional description and returns its details.
-            If an error occurs during the operation, it prints an error message and returns None.
+            dict or None: A dictionary containing the created realm role details if the role is successfully added,
+            or None if the role already exists or an error occurs.
         """
         try:
-            role = self._kc_admin.get_realm_role_by_name(name)
-            
-            if role:
-                return None
-            else:
-                return self._kc_admin.create_realm_role(payload={"name": name, "description": description})
+            role = None
+            try:
+                role = self._kc_admin.get_realm_role(role_name=name)
+            except Exception as e:
+                if role:
+                    print(f"Realm role '{name}' already exists.")
+                    return None
         
+            role_data = {"name": name, "description": description}
+            created_role = self._kc_admin.create_realm_role(payload=role_data)
+
+            if created_role:
+                print(f"Realm role '{name}' added successfully.")
+                return created_role
+            else:
+                print(f"Failed to add realm role '{name}'.")
+                return None
+
         except Exception as e:
             print(f'An error occurred: {e}')
             return None
@@ -393,16 +385,11 @@ class Hipcloak:
 
         Returns:
             bool or None: True if the realm role is successfully deleted, None if the role does not exist or an error occurs.
-
-        Note:
-            This function deletes a realm role from the Keycloak realm using its name.
-            If the role is successfully deleted, it returns True.
-            If the role does not exist or an error occurs during deletion, it prints an error message and returns None.
         """
         try:
             self._kc_admin.delete_realm_role(name)            
             print(f'Role "{name}" deleted from the realm.')
-            return True     
+            return True
         except Exception as e:
             print(f'An error occurred: {e}')
             return None
@@ -418,30 +405,32 @@ class Hipcloak:
 
         Returns:
             dict or None: A dictionary containing the result if the role is successfully added to the user, or None if an error occurs.
-
-        Note:
-            This function adds a realm role to a user in the Keycloak realm using their username.
-            If the role does not exist and 'force_creation' is True, it creates the realm role with an empty description.
-            If the role does not exist and 'force_creation' is False, it prints an error message and returns None.
-            If the user or role does not exist or an error occurs during the operation, it prints an error message and returns None.
         """
-        wanted_role = self._kc_admin.get_realm_role(role_name=user_role)
-        if not wanted_role and force_creation:
-            wanted_role = self._kc_admin.create_realm_role(payload={"name": user_role, "description": ""})
-            print(f'Role "{user_role}" created.')
+        try:
+            wanted_role = self._kc_admin.get_realm_role(role_name=user_role)
 
-        if not wanted_role:
-            print(f'Role "{user_role}" does not exist.')
+            if not wanted_role and force_creation:
+                wanted_role = self._kc_admin.create_realm_role(payload={"name": user_role, "description": ""})
+                print(f'Realm role "{user_role}" created.')
+
+            if not wanted_role:
+                print(f'Realm role "{user_role}" does not exist.')
+                return None
+
+            wanted_user_id = self._kc_admin.get_user_id(user_name)
+
+            if not wanted_user_id:
+                print(f'User "{user_name}" does not exist.')
+                return None
+
+            result = self._kc_admin.assign_realm_roles(user_id=wanted_user_id, roles=[{"id": wanted_role['id']}])
+            print(f'Realm role "{user_role}" added to user "{user_name}".')
+            return result
+
+        except Exception as e:
+            error_message = f'An error occurred: {e}'
+            print(error_message)
             return None
-
-        wanted_user_id = self._kc_admin.get_user_id(user_name)
-        if not wanted_user_id:
-            print(f'User "{user_name}" does not exist.')
-            return None
-
-        result = self._kc_admin.assign_realm_roles(user_id=wanted_user_id, roles=[{"id": wanted_role['id'], "name": wanted_role['name']}])
-        print(f'Role "{user_role}" added to user "{user_name}".')
-        return result
 
     def remove_role_from_user(self, user_name, user_role):
         """
@@ -453,28 +442,51 @@ class Hipcloak:
 
         Returns:
             bool or None: True if the realm role is successfully removed from the user, False if the role was not assigned to the user, None if the user or role does not exist or an error occurs.
-
-        Note:
-            This function removes a realm role from a user in the Keycloak realm using their username.
-            If the user or role does not exist, it prints an error message and returns None.
-            If the role was not assigned to the user, it prints a message and returns False.
-            If the role is successfully removed, it returns True.
         """
-        wanted_role = self._kc_admin.get_realm_role(role_name=user_role)
-        wanted_user_id = self._kc_admin.get_user_id(user_name)
+        try:
+            wanted_role = self._kc_admin.get_realm_role(role_name=user_role)
+            wanted_user_id = self._kc_admin.get_user_id(user_name)
 
-        if not wanted_role:
-            print(f'Role "{user_role}" does not exist.')
+            if not wanted_role:
+                print(f'Realm role "{user_role}" does not exist.')
+                return None
+
+            if not wanted_user_id:
+                print(f'User "{user_name}" does not exist.')
+                return None
+
+            result = self._kc_admin.delete_realm_roles_of_user(user_id=wanted_user_id, roles=[wanted_role])
+
+            if result:
+                print(f'Realm role "{user_role}" removed from user "{user_name}".')
+            else:
+                print(f'Realm role "{user_role}" was not assigned to user "{user_name}".')
+            
+            return result
+
+        except Exception as e:
+            error_message = f'An error occurred: {e}'
+            print(error_message)
             return None
 
-        if not wanted_user_id:
-            print(f'User "{user_name}" does not exist.')
-            return None
-
-        result = self._kc_admin.delete_realm_roles_of_user(user_id=wanted_user_id, roles=[wanted_role])
-        if result:
-            print(f'Role "{user_role}" removed from user "{user_name}".')
-        else:
-            print(f'Role "{user_role}" was not assigned to user "{user_name}".')
+    def add_role_to_group(self, grouppp_id, role):
+        try:
+            roleeeee = self._kc_admin.get_realm_role(role_name=role)
+            result = self._kc_admin.assign_group_realm_roles(group_id=grouppp_id, roles=roleeeee)
+            print(result)
+            return result
         
-        return result
+        except Exception as e:
+            error_message = f'An error occurred: {e}'
+            print(error_message)
+            return None
+        
+    def remove_role_from_group(self, group_id, role):
+        wanted_role = self._kc_admin.get_realm_role(role_name=role)
+        if not wanted_role:
+            print(f'Realm role "{role}" does not exist.')
+            return None
+        else:
+            result = self._kc_admin.delete_group_realm_roles(group_id=group_id['id'], roles=wanted_role)
+            return result
+    
