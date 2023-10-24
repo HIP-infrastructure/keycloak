@@ -26,7 +26,7 @@ load_dotenv(ENV_PATH.joinpath("../.env"))
 server_url=get_domain()
 admin_username=os.getenv("KEYCLOAK_ADMIN")
 admin_password=os.getenv("KEYCLOAK_ADMIN_PASSWORD")
-keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
+#keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
 
 @app.route('/')
 @auth.login_required
@@ -92,6 +92,7 @@ def create_user():
         user_to_add_password = content.get('Password', '')
         user_to_add_email = content.get('Email', '')
 
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         # Create the user
@@ -145,6 +146,7 @@ DELETE /identity/users/john_doe?realm=my_realm
 def delete_user(user_name):
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         # Delete the user
@@ -205,14 +207,17 @@ GET /projects/users/john_doe?realm=my_realm&type=projects
 def get_user_groups(root_path, user_name):
   realm_name = request.args.get('realm')
   #query_type = request.args.get('type')
+  keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
   keycloak_adm.switch_realm(realm_name)
   
   users_from_group = []
   group_list = keycloak_adm.get_groups_for_user(user_name)
-
+  
+  if group_list is None: return []
+  
   group_info = {}
   for current_group in group_list:
-    if root_path in current_group['path'] and not '/administrators' in current_group['path']:
+    if root_path in current_group['path'] and not '/administrators' in current_group['path'] and not '-administrators' in current_group['path']:
     #if '/HIP-dev-projects' in current_group['path'] and not '/administrators' in current_group['path']:
         group_info = {}
         #group_info['type'] = query_type
@@ -268,6 +273,7 @@ GET /identity/users/john_doe?realm=my_realm
 def get_user(root_path, user_name):
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         wanted_user = keycloak_adm.get_user(user_name)
@@ -296,8 +302,8 @@ def get_user(root_path, user_name):
 @role_required('app-admin')
 def create_root_collab():
     try:
-        print('coucou')
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         content = request.get_json()
@@ -353,6 +359,7 @@ POST /identity/groups?realm=my_realm
 def create_group():
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         content = request.get_json()
@@ -418,6 +425,7 @@ DELETE /identity/groups/my_group?realm=my_realm
 def delete_group(root_path, group_name):
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         role_name = "group-" + group_name
@@ -480,6 +488,7 @@ GET /identity/groups?realm=my_realm
 def get_all_groups(root_path):
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         #group_path = "/HIP-dev-projects"
@@ -514,6 +523,7 @@ def get_all_groups(root_path):
 def add_user_to_admin_group(root_path, user_name):
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         group_id = keycloak_adm.get_group_details_from_path(root_path)
@@ -564,6 +574,7 @@ PUT /identity/groups/my_group/member/users/john_doe?realm=my_realm
 def add_user_to_group(root_path, group_name, role_name, user_name):
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         match role_name:
@@ -621,6 +632,7 @@ DELETE /identity/groups/my_group/member/users/john_doe?realm=my_realm
 def remove_user_from_group(root_path, group_name, role_name, user_name):
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         match role_name:
@@ -674,6 +686,7 @@ GET /identity/groups/my_group?realm=my_realm
 def get_group_info(root_path, group_name):
     try:
         realm_name = request.args.get('realm')
+        keycloak_adm = Hipcloak(server_url=server_url, username=admin_username, password=admin_password, realm_name='master')
         keycloak_adm.switch_realm(realm_name)
 
         group_path = root_path + f"/{group_name}"
