@@ -24,3 +24,6 @@ gevent
 
 #python-keycloak
 python-keycloak
+
+#httpx
+httpx
