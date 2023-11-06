@@ -17,7 +17,7 @@ services:
   keycloak:
       container_name: keycloak
       image: quay.io/keycloak/keycloak:21.1.2
-      command: start
+      command: --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start
       # command: start-dev
       environment:
         KC_FEATURES:
@@ -43,8 +43,8 @@ services:
         #when in start-dev mode
         # KEYCLOAK_FRONTEND_URL: http://keycloak.thehip.app
         #try with cert keys
-        KC_HOSTNAME: keycloak.thehip.app
-        KC_HOSTNAME_ADMIN: keycloak.thehip.app
+        KC_HOSTNAME: dev.id.thehip.app
+        KC_HOSTNAME_ADMIN: dev.id.thehip.app
         #INFORMATION for KC_PROXY: none is the supposed default value, but if not specified here we
         #can not access the admin console. When using caddy use edge, it automatically 
         #sets http.enabled=true and http.proxy-address-forwarding=true
