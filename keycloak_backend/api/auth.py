@@ -36,7 +36,7 @@ def decode_access_token(authorisation_token, realm):
     # user_info = jwt.decode(authorisation_token, options={"verify_signature": False})
 
     # get public key 
-    response = httpx.get(url='https://keycloak.thehip.app/realms/'+realm)
+    response = httpx.get(url= get_domain()+'/realms/'+realm)
     keys = response.json()
 
     #format authorization token
