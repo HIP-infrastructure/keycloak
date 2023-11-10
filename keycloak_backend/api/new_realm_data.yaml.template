@@ -1,0 +1,45 @@
+realm:
+  name: "realmname"
+
+client:
+  clientId: "clientID"
+  name: "clientName"
+  baseUrl: "https://example.thehip.app/"
+  enabled: True
+  clientAuthenticatorType: "client-secret"
+  secret: "YourSecretKey"
+  redirectUris:
+    - "https://example1.thehip.app/*"
+    - "https://example2.thehip.app/*"
+  webOrigins:
+    - "https://example1.thehip.app"
+    - "https://example2.thehip.app"
+
+service_client:
+  clientId: "serviceClientID"
+  name: "serviceClientName"
+  rootUrl: "https://example1.thehip.app/"
+  enabled: True
+  clientAuthenticatorType: "client-secret"
+  secret: "YourSecretKey"
+  redirectUris:
+    - "https://example1.thehip.app/*"
+    - "https://example2.thehip.app/*"
+  webOrigins:
+    - "/*"
+
+identity_provider:
+  alias: "provider-alias"
+  displayName: "provider-name"
+  userInfoUrl: "https://provider.example.com/auth/realms/provider_realm_name/protocol/openid-connect/userinfo"
+  tokenUrl: "https://provider.example.com/auth/realms/provider_realm_name/protocol/openid-connect/token"
+  jwksUrl: "https://provider.example.com/auth/realms/provider_realm_name/protocol/openid-connect/certs"
+  issuer: "https://provider.example.com/auth/realms/hbp"
+  authorizationUrl: "https://provider.example.com/auth/realms/provider_realm_name/protocol/openid-connect/auth"
+  logoutUrl: "https://provider.example.com/auth/realms/provider_realm_name/protocol/openid-connect/logout"
+  clientId: "clientID"
+  clientSecret: "clientSecret"
+
+groups:
+  - name: "Center-Something1"
+  - name: "Center-Something2"
