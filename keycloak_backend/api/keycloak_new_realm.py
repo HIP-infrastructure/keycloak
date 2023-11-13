@@ -340,6 +340,25 @@ def create_center(keycloak_adm, center_name):
 
     print(f"Group '{center_name}' and role '{center_name}' created and role assigned to the group.")
 
+def create_center_mapper_idp(keycloak_adm, center_name, idp_alias):
+    mapper_payload={
+        "name": center_name,
+        "config": {
+            "group": "/" + center_name,
+            "claim": "roles.group",
+            "claim.value": center_name,
+            "jsonType.label": "String",
+            "syncMode": "INHERIT",
+            "are.claim.values.regex": False,
+            "claims": "[{\"key\":\"roles.group\",\"value\":\""+center_name+"\"}]"
+        },
+        "identityProviderMapper": "oidc-advanced-group-idp-mapper",
+        "identityProviderAlias": idp_alias
+    }
+
+    keycloak_adm._kc_admin.add_mapper_to_idp(idp_alias, mapper_payload)
+    print(f"Mapper '{center_name}' created and added to idp")
+
 def main():
     #load env vars
     ENV_PATH = pathlib.Path(__file__).parent.parent
@@ -510,6 +529,10 @@ def main():
     #create an identity provider
     idp_payload=generate_idp_payload(config_data)
     keycloak_adm._kc_admin.create_idp(idp_payload)
+
+    for group_config in config_data['groups']:
+        group_name = group_config['name']
+        create_center_mapper_idp(keycloak_adm, group_name, config_data['identity_provider']['alias'])
 
     print("new realm has been installed")
 
