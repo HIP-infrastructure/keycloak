@@ -3,6 +3,7 @@ import sys
 import json
 import yaml
 import pathlib
+import argparse
 
 from dotenv import load_dotenv
 from hipcloak import Hipcloak
@@ -315,6 +316,19 @@ def create_service_client_payload(yaml_data):
 
     return service_client_creation_payload
 
+def add_idp_to_realm(yaml_file):
+    print('Add_idp_to_realm :')
+    print('')
+    config_data = read_config_file(yaml_file)
+    realm_name = config_data['realm']['name']
+
+    keycloak_adm = connect_to_master_realm()
+    keycloak_adm.switch_realm(realm_name)
+
+    idp_payload=generate_idp_payload(config_data)
+    keycloak_adm._kc_admin.create_idp(idp_payload)
+    print('')
+
 def create_center(keycloak_adm, center_name):
     # Check and create group
     group_id = None
@@ -359,13 +373,19 @@ def create_center_mapper_idp(keycloak_adm, center_name, idp_alias):
     keycloak_adm._kc_admin.add_mapper_to_idp(idp_alias, mapper_payload)
     print(f"Mapper '{center_name}' created and added to idp")
 
-def main():
-    #load env vars
-    ENV_PATH = pathlib.Path(__file__).parent.parent
-    load_dotenv(ENV_PATH.joinpath("keycloak_backend.env"))
-    load_dotenv(ENV_PATH.joinpath("../.env"))
+def add_center_to_realm(values):
+    print("Add_center_to_realm :")
+    print('')
+    realm, center = values
+    keycloak_adm = connect_to_master_realm()
+    keycloak_adm.switch_realm(realm)
+    create_center(keycloak_adm, center)
+    print('')
 
-    config_data = read_config_file("./keycloak_backend/api/new_realm_data.yaml")
+def redeploy_full_realm(yaml_file):
+    print("Redeploy_full_realm :")
+    print('')
+    config_data = read_config_file(yaml_file)
     realm_name =config_data['realm']['name']
 
     #Connect to master realm
@@ -535,6 +555,27 @@ def main():
         create_center_mapper_idp(keycloak_adm, group_name, config_data['identity_provider']['alias'])
 
     print("new realm has been installed")
+    print('')
+
+def main():
+    argsparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    argsparser.add_argument('-r', '--redeploy', help='Redeploy a full realm with everything from yaml file')
+    argsparser.add_argument('-i', '--idp', help='Add an identity provider according to info in yaml file')
+    argsparser.add_argument('-c', '--center', nargs=2, type=str, help="Add a center to a realm. 2 Parameters, realm then center.")
+    
+    args = argsparser.parse_args()
+
+    #load env vars
+    ENV_PATH = pathlib.Path(__file__).parent.parent
+    load_dotenv(ENV_PATH.joinpath("keycloak_backend.env"))
+    load_dotenv(ENV_PATH.joinpath("../.env"))
+
+    if args.redeploy:
+        redeploy_full_realm(args.redeploy)
+    elif args.idp:
+        add_idp_to_realm(args.idp)
+    elif args.center:
+        add_center_to_realm(args.center)
 
 if __name__ == '__main__':
     main()
