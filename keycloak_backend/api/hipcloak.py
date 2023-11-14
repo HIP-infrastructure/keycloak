@@ -1,4 +1,5 @@
 import pprint
+import sys
 pp = pprint.PrettyPrinter(indent=4)
 from keycloak import KeycloakAdmin
 from keycloak import KeycloakOpenIDConnection
@@ -251,7 +252,7 @@ class Hipcloak:
             print(f"Error creating root group '{group_title}': {str(e)}")
             return None
 
-    def create_group(self, group_title, parent_name="", isCollab=True):
+    def create_group(self, group_title, parent_name="", isPublicSpace=False, isCollab=True):
         """
         Create a new group in the Keycloak realm with the provided information.
 
@@ -264,7 +265,14 @@ class Hipcloak:
             dict or None: A dictionary containing group details if the group is successfully created, or None if an error occurs.
         """
         try:
-            payload = {"name": group_title}
+            payload = {
+                "name": group_title,
+                "attributes": {
+                    "isPublic": [
+                        str(isPublicSpace)
+                    ]
+                }
+            }
 
             if isCollab:
                 # if not parent_name:
