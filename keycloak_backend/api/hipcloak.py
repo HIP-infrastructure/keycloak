@@ -1,4 +1,5 @@
 import pprint
+import sys
 pp = pprint.PrettyPrinter(indent=4)
 from keycloak import KeycloakAdmin
 from keycloak import KeycloakOpenIDConnection
@@ -30,6 +31,21 @@ class Hipcloak:
         )
         self._kc_admin = KeycloakAdmin(connection=keycloak_connection)
         print('Connected to Keycloak server <%s> with realm <%s>' %(server_url, realm_name))
+
+    def create_realm(self, realm_name):
+        payload={
+            "realm": realm_name,
+            "displayName": realm_name,
+            "displayNameHtml": "<div class=\"kc-logo-text\"><span>" + realm_name + "</span></div>",
+            "enabled": True,
+            "sslRequired": "all",
+            "revokeRefreshToken": True
+            }
+        try:
+            new_realm=self._kc_admin.create_realm(payload=payload)
+            print('Realm <%s> created' %(realm_name))
+        except Exception as e:
+            sys.exit('Error during the creation of the realm <%s> : <%s>' %(realm_name, e))
 
     def switch_realm(self, realm_name):
         """
@@ -236,7 +252,7 @@ class Hipcloak:
             print(f"Error creating root group '{group_title}': {str(e)}")
             return None
 
-    def create_group(self, group_title, parent_name="", isCollab=True):
+    def create_group(self, group_title, parent_name="", isPublicSpace=False, isCollab=True):
         """
         Create a new group in the Keycloak realm with the provided information.
 
@@ -249,7 +265,14 @@ class Hipcloak:
             dict or None: A dictionary containing group details if the group is successfully created, or None if an error occurs.
         """
         try:
-            payload = {"name": group_title}
+            payload = {
+                "name": group_title,
+                "attributes": {
+                    "isPublic": [
+                        str(isPublicSpace)
+                    ]
+                }
+            }
 
             if isCollab:
                 # if not parent_name:
@@ -359,8 +382,8 @@ class Hipcloak:
             description (str, optional): A description for the realm role. Default is an empty string.
 
         Returns:
-            dict or None: A dictionary containing the created realm role details if the role is successfully added,
-            or None if the role already exists or an error occurs.
+            dict or None: A dictionary containing the realm role details if the role is successfully added or already exists,
+            or None if an error occurs.
         """
         try:
             role = None
@@ -370,10 +393,9 @@ class Hipcloak:
                 if role:
                     print(f"Realm role '{name}' already exists.")
                     return None
-        
+
             role_data = {"name": name, "description": description}
             created_role = self._kc_admin.create_realm_role(payload=role_data)
-
             if created_role:
                 print(f"Realm role '{name}' added successfully.")
                 return created_role
@@ -382,7 +404,7 @@ class Hipcloak:
                 return None
 
         except Exception as e:
-            print(f'An error occurred: {e}')
+            print(f'An error occurred while adding realm role: {e}')
             return None
 
     def delete_role_from_realm(self, name):
@@ -416,6 +438,7 @@ class Hipcloak:
             dict or None: A dictionary containing the result if the role is successfully added to the user, or None if an error occurs.
         """
         try:
+            wanted_role = self.add_role_to_realm(user_role)
             wanted_role = self._kc_admin.get_realm_role(role_name=user_role)
 
             if not wanted_role and force_creation:
@@ -431,8 +454,8 @@ class Hipcloak:
             if not wanted_user_id:
                 print(f'User "{user_name}" does not exist.')
                 return None
-
-            result = self._kc_admin.assign_realm_roles(user_id=wanted_user_id, roles=[{"id": wanted_role['id']}])
+                
+            result = self._kc_admin.assign_realm_roles(user_id=wanted_user_id, roles=[{"id": wanted_role['id'], "name": wanted_role['name']}])
             print(f'Realm role "{user_role}" added to user "{user_name}".')
             return result
 
