@@ -9,6 +9,10 @@ Keycloak install and backend API to manage groups CRUD in Keycloak
 
 ## Keycloak Backend Flask Application
 
+### Install
+
+- `install_keycloak_backend.sh`
+
 ### Overview
 
 This Flask application serves as a backend service for managing user accounts, groups, and group memberships in a Keycloak identity and access management system. It provides a RESTful API for creating, deleting, and retrieving user and group information within specified Keycloak realms.
