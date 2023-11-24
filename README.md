@@ -29,11 +29,11 @@ This Flask application serves as a backend service for managing user accounts, g
 
 1. **User Creation**: `POST /identity/users` - Create a new user account in Keycloak.
 2. **User Deletion**: `DELETE /identity/users/<user_name>` - Delete a user account from Keycloak.
-3. **User Group Membership Retrieval**: `GET /projects/users/<user_name>` - Retrieve a user's group membership information.
-4. **User Information Retrieval**: `GET /identity/users/<user_name>` - Get detailed information about a user account.
+3. **User Group Membership Retrieval**: `GET /projects/<root_path>/users/<user_name>` - Retrieve a user's group membership information.
+4. **User Information Retrieval**: `/identity/projects/<root_path>/users/<user_name>` - Get detailed information about a user account.
 5. **Group Creation**: `POST /identity/groups` - Create a new group in Keycloak.
-6. **Group Deletion**: `DELETE /identity/groups/<group_name>` - Delete a group from Keycloak.
-7. **Group Information Retrieval**: `GET /identity/groups` - Retrieve information about all groups in Keycloak.
+6. **Group Deletion**: `DELETE /identity/groups/<root_path>/<group_name>/` - Delete a group from Keycloak.
+7. **Group Information Retrieval**: `GET /identity/groups/<root_path>` - Retrieve information about all groups in Keycloak.
 8. **Health Check**: `GET /ok` - Check the health of the Keycloak Backend service.
 
 ### Authentication and Authorization
