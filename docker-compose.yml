@@ -14,6 +14,7 @@ services:
         PGDATA: /var/lib/postgresql/data/pgdata
       volumes:
         - ./postgres_data:/var/lib/postgresql/data
+      restart: always
   keycloak:
       container_name: keycloak
       image: quay.io/keycloak/keycloak:21.1.2
@@ -60,3 +61,4 @@ services:
 #        - ./certs/fullchain.pem:/etc/x509/https/tls.crt
 #        - ./certs/privkey.pem:/etc/x509/https/tls.key
         - ./chuv-theme:/opt/keycloak/themes/chuv-theme
+      restart: always
