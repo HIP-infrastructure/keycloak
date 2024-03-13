@@ -2,6 +2,9 @@
 
 Keycloak install and backend API to manage groups CRUD in Keycloak
 
+## Machine preparation
+1. Install `docker` using this [guide](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04). Don't forget to enable the docker service using `sudo systemctl enable docker`.
+
 ## Keycloak Install
 
 - Copy the `.env.template` to `.env`
