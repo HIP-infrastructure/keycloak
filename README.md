@@ -78,9 +78,25 @@ POST /identity/users?realm=my_realm
     "Email": "john.doe@example.com"
 }
 ```
-
 This README provides a basic overview of the application's functionality and usage. For detailed API documentation, refer to the inline comments in the code.
 
+## Keycloak Toolbox
+
+:warning: This toolbox in a work in progress :warning: 
+
+In order to facilitate realm deployment you can use the keycloak_toolbox.py file :
+
+- Copy the template file
+```bash
+cp new_realm_data.yaml.template new_realm_data.yaml
+```    
+
+- Update the values inside the yaml according to your installation
+
+- Run the function to setup your keycloak
+```python
+python3 keycloak_toolbox.py -r new_realm_data.yaml
+```    
 ## Acknowledgement
 
 This research was supported by the EBRAINS research infrastructure, funded from the European Union’s Horizon 2020 Framework Programme for Research and Innovation under the Specific Grant Agreement No. 945539 (Human Brain Project SGA3).
