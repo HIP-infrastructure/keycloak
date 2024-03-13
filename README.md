@@ -4,7 +4,7 @@ Keycloak install and backend API to manage groups CRUD in Keycloak
 
 ## Keycloak Install
 
-- Copy the .env.template to .env
+- Copy the `.env.template` to `.env`
 - `docker compose up -d`
 
 ## Keycloak Backend Flask Application
