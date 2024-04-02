@@ -12,6 +12,7 @@ done
 if ! command -v sudo &> /dev/null
 then
     if [ "$DOCKER_INSTALL" -eq 1 ]; then
+        apt update
         apt install sudo -y
     else
         echo "sudo could not be found, please install it."
