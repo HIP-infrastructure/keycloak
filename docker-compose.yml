@@ -65,7 +65,7 @@ services:
   keycloak_backend:
       build:
         context: .
-        dockerfile: ./keycloak_backend/backend.Dockerfile
+        dockerfile: ./keycloak_backend/Dockerfile
       environment:
         BACKEND_DOMAIN: ${BACKEND_DOMAIN}
         KEYCLOAK_BACKEND_USER: ${KEYCLOAK_BACKEND_USER}
