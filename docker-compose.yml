@@ -62,3 +62,13 @@ services:
 #        - ./certs/privkey.pem:/etc/x509/https/tls.key
         - ./chuv-theme:/opt/keycloak/themes/chuv-theme
       restart: always
+  keycloak_backend:
+      build:
+        context: .
+        dockerfile: ./keycloak_backend/backend.Dockerfile
+      environment:
+        BACKEND_DOMAIN: ${BACKEND_DOMAIN}
+        KEYCLOAK_BACKEND_USER: ${KEYCLOAK_BACKEND_USER}
+        KEYCLOAK_BACKEND_PASSWORD: ${KEYCLOAK_BACKEND_PASSWORD}
+      ports:
+        - 127.0.0.1:8080:80
