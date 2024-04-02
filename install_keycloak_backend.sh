@@ -22,6 +22,13 @@ then
     fi
 fi
 
+if ! command -v curl &> /dev/null
+then
+    echo "curl could not be found, installing..."
+    sudo apt-get update && sudo apt-get install -y curl
+    echo "curl installed."
+fi
+
 if ! command -v jq &> /dev/null
 then
     echo "jq could not be found, installing..."
