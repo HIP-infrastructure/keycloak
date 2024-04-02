@@ -44,7 +44,7 @@ services:
         #when in start-dev mode
         # KEYCLOAK_FRONTEND_URL: ${KEYCLOAK_HOSTNAME}
         #try with cert keys
-        KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
+        KC_HOSTNAME_URL: ${KEYCLOAK_HOSTNAME_URL}
         KC_HOSTNAME_ADMIN: ${KEYCLOAK_HOSTNAME}
         #INFORMATION for KC_PROXY: none is the supposed default value, but if not specified here we
         #can not access the admin console. When using caddy use edge, it automatically 
