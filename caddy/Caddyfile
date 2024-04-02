@@ -17,7 +17,7 @@ route /api/* {
 }
 
 route /* {
-    reverse_proxy localhost:8080 {
+    reverse_proxy {$KEYCLOAK_CADDY_URL:localhost:8080} {
         health_uri /
         health_interval 10s
 
