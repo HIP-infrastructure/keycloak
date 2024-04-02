@@ -9,6 +9,16 @@ while [[ "$#" -gt 0 ]]; do
     shift 
 done
 
+if ! command -v sudo &> /dev/null
+then
+    if [ "$DOCKER_INSTALL" -eq 1 ]; then
+        apt install sudo -y
+    else
+        echo "sudo could not be found, please install it."
+        exit 1;
+    fi
+fi
+
 if ! command -v jq &> /dev/null
 then
     echo "jq could not be found, installing..."
