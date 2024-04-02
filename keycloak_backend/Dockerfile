@@ -11,4 +11,4 @@ COPY install_keycloak_backend.sh /root/keycloak_backend/
 
 RUN /root/keycloak_backend/install_keycloak_backend.sh --docker-install
 
-ENTRYPOINT [ "pm2-runtime", "resurrect" ]
+ENTRYPOINT [ "pm2-runtime", "pm2/ecosystem.config.js" ]
