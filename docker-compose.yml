@@ -72,3 +72,14 @@ services:
         KEYCLOAK_BACKEND_PASSWORD: ${KEYCLOAK_BACKEND_PASSWORD}
       ports:
         - 127.0.0.1:8080:80
+  keycloak_init:
+      build:
+        context: .
+        dockerfile: ./keycloak_backend/Dockerfile
+      environment:
+        BACKEND_DOMAIN: ${BACKEND_DOMAIN}
+        KEYCLOAK_BACKEND_USER: ${KEYCLOAK_BACKEND_USER}
+        KEYCLOAK_BACKEND_PASSWORD: ${KEYCLOAK_BACKEND_PASSWORD}
+      depends_on:
+        - keycloak
+      entrypoint: [ "python3", "./api/keycloak_toolbox.py", "-r", "./api/docker_realm.yaml", "-s" ]

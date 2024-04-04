@@ -7,3 +7,4 @@ pm2/node_modules
 **/__pycache__
 keycloak_backend/*.env
 keycloak_backend/api/*.yaml
+!keycloak_backend/api/docker_realm.yaml

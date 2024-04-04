@@ -71,6 +71,20 @@ class Hipcloak:
         except Exception as e:
             print(f"Error while switching realm: {str(e)}")
 
+    def realm_exists(self, realm_name):
+        """
+        Determine if a realm exists.
+
+        Args:
+            realm_name (str): The name of the realm to cheek.
+
+        Returns:
+            bool
+        """
+        realms = self._kc_admin.get_realms()
+        return realm_name in [realm['realm'] for realm in realms]
+
+
     def create_user(self, user_name, first_name, last_name, user_password, email):
         """
         Create a new user in the Keycloak realm with the provided information.

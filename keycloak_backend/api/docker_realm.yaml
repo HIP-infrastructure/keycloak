@@ -1,0 +1,41 @@
+realm:
+  name: "hip"
+
+client:
+  clientId: "hip"
+  name: "hip"
+  baseUrl: "http://hip.local/"
+  enabled: True
+  clientAuthenticatorType: "client-secret"
+  secret: "supersecret"
+  redirectUris:
+    - "http://hip.local/*"
+  webOrigins:
+    - "http://hip.local"
+
+service_client:
+  clientId: "hip"
+  name: "hip"
+  rootUrl: "http://hip.local/"
+  enabled: True
+  clientAuthenticatorType: "client-secret"
+  secret: "supersecret"
+  redirectUris:
+    - "http://hip.local/*"
+  webOrigins:
+    - "/*"
+
+identity_provider:
+  alias: "provider-alias"
+  displayName: "provider-name"
+  userInfoUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/userinfo"
+  tokenUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/token"
+  jwksUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/certs"
+  issuer: "http://hip.local/auth/realms/hbp"
+  authorizationUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/auth"
+  logoutUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/logout"
+  clientId: "hip"
+  clientSecret: "supersecret"
+
+groups:
+  - name: "hip"
