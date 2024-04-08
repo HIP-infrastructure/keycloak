@@ -82,4 +82,4 @@ services:
         KEYCLOAK_BACKEND_PASSWORD: ${KEYCLOAK_BACKEND_PASSWORD}
       depends_on:
         - keycloak
-      entrypoint: [ "python3", "./api/keycloak_toolbox.py", "-r", "./api/docker_realm.yaml", "-s" ]
+      entrypoint: [ "python3", "./keycloak_backend/api/keycloak_toolbox.py", "-r", "./api/docker_realm.yaml", "-s" ]
