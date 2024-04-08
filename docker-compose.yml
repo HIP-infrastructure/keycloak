@@ -67,6 +67,8 @@ services:
         context: .
         dockerfile: ./keycloak_backend/Dockerfile
       environment:
+        KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+        KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
         BACKEND_DOMAIN: ${BACKEND_DOMAIN}
         KEYCLOAK_BACKEND_USER: ${KEYCLOAK_BACKEND_USER}
         KEYCLOAK_BACKEND_PASSWORD: ${KEYCLOAK_BACKEND_PASSWORD}
@@ -77,6 +79,8 @@ services:
         context: .
         dockerfile: ./keycloak_backend/Dockerfile
       environment:
+        KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+        KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
         BACKEND_DOMAIN: ${BACKEND_DOMAIN}
         KEYCLOAK_BACKEND_USER: ${KEYCLOAK_BACKEND_USER}
         KEYCLOAK_BACKEND_PASSWORD: ${KEYCLOAK_BACKEND_PASSWORD}
