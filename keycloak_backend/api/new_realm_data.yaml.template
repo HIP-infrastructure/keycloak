@@ -42,4 +42,6 @@ identity_provider:
 
 groups:
   - name: "Center-Something1"
+    ncName: "Center-Something1"
   - name: "Center-Something2"
+    ncName: "Center-Something2"

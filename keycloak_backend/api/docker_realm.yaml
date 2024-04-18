@@ -39,3 +39,4 @@ identity_provider:
 
 groups:
   - name: "hip"
+    ncName: "hip"
