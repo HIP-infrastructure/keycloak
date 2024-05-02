@@ -386,7 +386,8 @@ def redeploy_full_realm(yaml_file, skip_if_realm_exists=False):
     print("Redeploy_full_realm :")
     print('')
     config_data = read_config_file(yaml_file)
-    realm_name =config_data['realm']['name']
+    realm_name = config_data['realm']['name']
+    realm_ssl_required = config_data['realm'].get("ssl_required", True)
 
     #Connect to master realm
     keycloak_adm = connect_to_master_realm()
@@ -396,7 +397,7 @@ def redeploy_full_realm(yaml_file, skip_if_realm_exists=False):
         return
 
     #Create and switch to realm:
-    keycloak_adm.create_realm(realm_name)
+    keycloak_adm.create_realm(realm_name, realm_ssl_required)
     keycloak_adm.switch_realm(realm_name)
 
     #Create group client scope :

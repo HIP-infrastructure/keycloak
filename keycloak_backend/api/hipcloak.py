@@ -32,13 +32,14 @@ class Hipcloak:
         self._kc_admin = KeycloakAdmin(connection=keycloak_connection)
         print('Connected to Keycloak server <%s> with realm <%s>' %(server_url, realm_name))
 
-    def create_realm(self, realm_name):
+    def create_realm(self, realm_name, ssl_required=True):
+        ssl_required = "all" if ssl_required else "none"
         payload={
             "realm": realm_name,
             "displayName": realm_name,
             "displayNameHtml": "<div class=\"kc-logo-text\"><span>" + realm_name + "</span></div>",
             "enabled": True,
-            "sslRequired": "all",
+            "sslRequired": ssl_required,
             "revokeRefreshToken": True
             }
         try:

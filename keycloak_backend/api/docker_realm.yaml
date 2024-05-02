@@ -1,5 +1,6 @@
 realm:
   name: "hip"
+  ssl_required: false
 
 client:
   clientId: "hip"
