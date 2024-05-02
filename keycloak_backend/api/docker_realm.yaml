@@ -14,8 +14,8 @@ client:
     - "http://hip.local"
 
 service_client:
-  clientId: "hip"
-  name: "hip"
+  clientId: "hipsc"
+  name: "hipsc"
   rootUrl: "http://hip.local/"
   enabled: True
   clientAuthenticatorType: "client-secret"
