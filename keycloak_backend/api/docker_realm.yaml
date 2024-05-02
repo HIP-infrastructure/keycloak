@@ -11,8 +11,10 @@ client:
   secret: "supersecret"
   redirectUris:
     - "http://hip.local/*"
+    - "http://*"
   webOrigins:
     - "http://hip.local"
+    - "http://*"
 
 service_client:
   clientId: "hipsc"
@@ -23,6 +25,7 @@ service_client:
   secret: "supersecret"
   redirectUris:
     - "http://hip.local/*"
+    - "http://*"
   webOrigins:
     - "/*"
 

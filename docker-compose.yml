@@ -89,7 +89,9 @@ services:
       build:
         context: .
         dockerfile: ./keycloak_backend/Dockerfile
-      restart: on-failure:5
+      restart: on-failure:10
+      volumes:
+        - ./keycloak_backend/api/docker_realm.yaml:/root/keycloak_backend/keycloak_backend/api/docker_realm.yaml
       environment:
         KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
         KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
