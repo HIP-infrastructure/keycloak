@@ -89,6 +89,7 @@ services:
       build:
         context: .
         dockerfile: ./keycloak_backend/Dockerfile
+      restart: on-failure:5
       environment:
         KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
         KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
