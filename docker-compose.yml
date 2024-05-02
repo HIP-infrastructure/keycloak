@@ -15,6 +15,8 @@ services:
       volumes:
         - ./postgres_data:/var/lib/postgresql/data
       restart: always
+      networks:
+        - keycloak
   keycloak:
       container_name: keycloak
       image: quay.io/keycloak/keycloak:21.1.2
@@ -62,10 +64,15 @@ services:
 #        - ./certs/privkey.pem:/etc/x509/https/tls.key
         - ./chuv-theme:/opt/keycloak/themes/chuv-theme
       restart: always
+      networks:
+        keycloak:
+          aliases:
+            - keycloak.local
   keycloak_backend:
       build:
         context: .
         dockerfile: ./keycloak_backend/Dockerfile
+      restart: always
       environment:
         KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
         KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
@@ -73,7 +80,11 @@ services:
         KEYCLOAK_BACKEND_USER: ${KEYCLOAK_BACKEND_USER}
         KEYCLOAK_BACKEND_PASSWORD: ${KEYCLOAK_BACKEND_PASSWORD}
       ports:
-        - 127.0.0.1:8080:80
+        - 127.0.0.1:8081:80
+      networks:
+        keycloak:
+          aliases:
+            - keycloak_backend.local
   keycloak_init:
       build:
         context: .
@@ -87,3 +98,9 @@ services:
       depends_on:
         - keycloak
       entrypoint: [ "python3", "./keycloak_backend/api/keycloak_toolbox.py", "-r", "./keycloak_backend/api/docker_realm.yaml", "-s" ]
+      networks:
+        - keycloak
+networks:
+  keycloak:
+    driver: bridge
+    name: keycloak
