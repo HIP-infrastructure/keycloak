@@ -515,6 +515,13 @@ class Hipcloak:
             error_message = f'An error occurred: {e}'
             print(error_message)
             return None
+    
+    def get_group_id_by_name(self, group_name):
+        groups = self._kc_admin.get_groups()
+        for group in groups:
+            if group['name'] == group_name:
+                return group['id']
+        return None  
 
     def add_role_to_group(self, grouppp_id, role):
         try:
