@@ -558,6 +558,14 @@ def redeploy_full_realm(yaml_file, skip_if_realm_exists=False):
     for group_config in config_data['groups']:
         group_name = group_config['name']
         create_center_mapper_idp(keycloak_adm, group_name, config_data['identity_provider']['alias'])
+        
+    for user in config_data['realm'].get('users', []):
+        keycloak_adm.create_user(
+            user['username'], user['firstname'],
+            user['lastname'], user['password'], user['email']
+        )
+        for group in user.get('groups', []):
+            keycloak_adm.add_user_to_group(user['username'], group)
 
     print("new realm has been installed")
     print('')

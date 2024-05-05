@@ -1,6 +1,14 @@
 realm:
   name: "hip"
   ssl_required: false
+  users:
+    - username: user
+      password: password
+      firstname: user
+      lastname: user
+      email: user@test.com
+      groups:
+        - hip
 
 client:
   clientId: "hip"
