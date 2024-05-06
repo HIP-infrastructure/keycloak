@@ -1,29 +1,11 @@
-# gunicorn
 gunicorn
-
-# requests
 requests
-
-# flask-httpauth
 flask-httpauth
-
-# werkzeug
 werkzeug
-
-# flask
 flask
-
-# python-dotenv
 python-dotenv
-
-# pyyaml
 pyyaml
-
-# gevent
 gevent
-
-#python-keycloak
 python-keycloak
-
-#httpx
 httpx
+pyjwt

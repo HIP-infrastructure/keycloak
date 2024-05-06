@@ -8,6 +8,7 @@ from flask import request
 from functools import wraps
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
 
 __author__ = "Florian SIPP"
 __email__ = "florian.sipp@chuv.ch"
@@ -21,6 +22,11 @@ def get_domain():
   return str(os.getenv('BACKEND_DOMAIN'))
 
 def get_credentials():
+  if os.getenv("KEYCLOAK_BACKEND_USER") is not None and os.getenv("KEYCLOAK_BACKEND_PASSWORD") is not None:
+    username = os.getenv("KEYCLOAK_BACKEND_USER")
+    password = generate_password_hash(os.getenv("KEYCLOAK_BACKEND_PASSWORD"))
+    return {username: password}
+    
   with open(ENV_PATH.joinpath("keycloak_backend.secret"), mode='r') as secret:
     username, password = secret.read().split('@')
   return {username: password}

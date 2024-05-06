@@ -1,0 +1,95 @@
+realm:
+  name: "hip"
+  ssl_required: false
+  users:
+    - username: user
+      password: password
+      firstname: user
+      lastname: user
+      email: user@test.com
+      groups:
+        - hip
+        - chuv
+
+client:
+  clientId: "hip"
+  name: "hip"
+  baseUrl: "http://hip.local/"
+  enabled: True
+  clientAuthenticatorType: "client-secret"
+  secret: "supersecret"
+  redirectUris:
+    - "http://hip.local/*"
+    - "http://*"
+  webOrigins:
+    - "http://hip.local"
+    - "http://*"
+
+service_client:
+  clientId: "hipsc"
+  name: "hipsc"
+  rootUrl: "http://hip.local/"
+  enabled: True
+  clientAuthenticatorType: "client-secret"
+  secret: "supersecret"
+  redirectUris:
+    - "http://hip.local/*"
+    - "http://*"
+  webOrigins:
+    - "/*"
+
+identity_provider:
+  alias: "provider-alias"
+  displayName: "provider-name"
+  userInfoUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/userinfo"
+  tokenUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/token"
+  jwksUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/certs"
+  issuer: "http://hip.local/auth/realms/hbp"
+  authorizationUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/auth"
+  logoutUrl: "http://hip.local/auth/realms/provider_realm_name/protocol/openid-connect/logout"
+  clientId: "hip"
+  clientSecret: "supersecret"
+
+groups:
+  - name: "hip"
+    ncName: "hip"
+  - name: "epfl-esl"
+    ncName: "epfl-esl"
+  - name: "uka"
+    ncName: "uka"
+  - name: "vr-vis"
+    ncName: "vr-vis"
+  - name: "ucl"
+    ncName: "ucl"
+  - name: "chuc"
+    ncName: "chuc"
+  - name: "amu-ns"
+    ncName: "amu-ns"
+  - name: "chuv"
+    ncName: "chuv"
+  - name: "amu-tng"
+    ncName: "amu-tng"
+  - name: "aphm"
+    ncName: "aphm"
+  - name: "chru-lille"
+    ncName: "chru-lille"
+  - name: "chm"
+    ncName: "chm"
+  - name: "chuga"
+    ncName: "chuga"
+  - name: "chu-lyon"
+    ncName: "chu-lyon"
+  - name: "fnusa"
+    ncName: "fnusa"
+  - name: "hus"
+    ncName: "hus"
+  - name: "chru-s"
+    ncName: "chru-s"
+  - name: "ou-sse"
+    ncName: "ou-sse"
+  - name: "psmar"
+    ncName: "psmar"
+  - name: "ucbl"
+    ncName: "ucbl"
+  - name: "umcu"
+    ncName: "umcu"

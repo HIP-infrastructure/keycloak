@@ -1,5 +1,34 @@
 #!/bin/bash
 
+set -e
+
+DOCKER_INSTALL=0
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --docker-install) DOCKER_INSTALL=1 ;;
+        *) ;;
+    esac
+    shift 
+done
+
+if ! command -v sudo &> /dev/null
+then
+    if [ "$DOCKER_INSTALL" -eq 1 ]; then
+        apt update
+        apt install sudo -y
+    else
+        echo "sudo could not be found, please install it."
+        exit 1;
+    fi
+fi
+
+if ! command -v curl &> /dev/null
+then
+    echo "curl could not be found, installing..."
+    sudo apt-get update && sudo apt-get install -y curl
+    echo "curl installed."
+fi
+
 if ! command -v jq &> /dev/null
 then
     echo "jq could not be found, installing..."
@@ -22,8 +51,10 @@ then
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
     sudo apt-get update && sudo apt-get install -y caddy
-    sudo systemctl stop caddy
-    sudo systemctl disable caddy
+    if [ "$DOCKER_INSTALL" -eq 0 ]; then
+        sudo systemctl stop caddy
+        sudo systemctl disable caddy
+    fi
     echo "caddy installed."
 fi
 
@@ -49,11 +80,15 @@ then
 fi
 
 # generate keycloak_backend credentials if needed
-./gencreds.sh
+if [ "$DOCKER_INSTALL" -eq 0 ]; then
+    ./gencreds.sh
+fi
 
 cd pm2 && npm i && cd ..
 sudo pm2 start pm2/ecosystem.config.js
 sudo pm2 save
-sudo pm2 startup
-sudo systemctl start pm2-root
-sudo systemctl enable pm2-root
+if [ "$DOCKER_INSTALL" -eq 0 ]; then
+    sudo pm2 startup
+    sudo systemctl start pm2-root
+    sudo systemctl enable pm2-root
+fi

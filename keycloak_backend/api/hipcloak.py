@@ -32,13 +32,14 @@ class Hipcloak:
         self._kc_admin = KeycloakAdmin(connection=keycloak_connection)
         print('Connected to Keycloak server <%s> with realm <%s>' %(server_url, realm_name))
 
-    def create_realm(self, realm_name):
+    def create_realm(self, realm_name, ssl_required=True):
+        ssl_required = "all" if ssl_required else "none"
         payload={
             "realm": realm_name,
             "displayName": realm_name,
             "displayNameHtml": "<div class=\"kc-logo-text\"><span>" + realm_name + "</span></div>",
             "enabled": True,
-            "sslRequired": "all",
+            "sslRequired": ssl_required,
             "revokeRefreshToken": True
             }
         try:
@@ -70,6 +71,20 @@ class Hipcloak:
             print(str(e))
         except Exception as e:
             print(f"Error while switching realm: {str(e)}")
+
+    def realm_exists(self, realm_name):
+        """
+        Determine if a realm exists.
+
+        Args:
+            realm_name (str): The name of the realm to cheek.
+
+        Returns:
+            bool
+        """
+        realms = self._kc_admin.get_realms()
+        return realm_name in [realm['realm'] for realm in realms]
+
 
     def create_user(self, user_name, first_name, last_name, user_password, email):
         """
@@ -500,6 +515,13 @@ class Hipcloak:
             error_message = f'An error occurred: {e}'
             print(error_message)
             return None
+    
+    def get_group_id_by_name(self, group_name):
+        groups = self._kc_admin.get_groups()
+        for group in groups:
+            if group['name'] == group_name:
+                return group['id']
+        return None  
 
     def add_role_to_group(self, grouppp_id, role):
         try:

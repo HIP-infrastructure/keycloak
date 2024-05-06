@@ -382,17 +382,22 @@ def add_center_to_realm(values):
     create_center(keycloak_adm, center)
     print('')
 
-def redeploy_full_realm(yaml_file):
+def redeploy_full_realm(yaml_file, skip_if_realm_exists=False):
     print("Redeploy_full_realm :")
     print('')
     config_data = read_config_file(yaml_file)
-    realm_name =config_data['realm']['name']
+    realm_name = config_data['realm']['name']
+    realm_ssl_required = config_data['realm'].get("ssl_required", True)
 
     #Connect to master realm
     keycloak_adm = connect_to_master_realm()
 
+    if skip_if_realm_exists and keycloak_adm.realm_exists(realm_name):
+        print("Realm already exists, skipping...")
+        return
+
     #Create and switch to realm:
-    keycloak_adm.create_realm(realm_name)
+    keycloak_adm.create_realm(realm_name, realm_ssl_required)
     keycloak_adm.switch_realm(realm_name)
 
     #Create group client scope :
@@ -554,12 +559,22 @@ def redeploy_full_realm(yaml_file):
         group_name = group_config['name']
         create_center_mapper_idp(keycloak_adm, group_name, config_data['identity_provider']['alias'])
 
+    for user in config_data['realm'].get('users', []):
+        keycloak_adm.create_user(
+            user['username'], user['firstname'],
+            user['lastname'], user['password'], user['email']
+        )
+        for group in user.get('groups', []):
+            group_id = keycloak_adm.get_group_id_by_name(group)
+            keycloak_adm.add_user_to_group(user['username'], group_id)
+
     print("new realm has been installed")
     print('')
 
 def main():
     argsparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     argsparser.add_argument('-r', '--redeploy', help='Redeploy a full realm with everything from yaml file')
+    argsparser.add_argument('-s', '--skip', default=False, action='store_true', help='Skip creation if realm already exists, (option only has effect if used with --redeploy)')
     argsparser.add_argument('-i', '--idp', help='Add an identity provider according to info in yaml file')
     argsparser.add_argument('-c', '--center', nargs=2, type=str, help="Add a center to a realm. 2 Parameters, realm then center.")
     
@@ -571,7 +586,7 @@ def main():
     load_dotenv(ENV_PATH.joinpath("../.env"))
 
     if args.redeploy:
-        redeploy_full_realm(args.redeploy)
+        redeploy_full_realm(args.redeploy, args.skip)
     elif args.idp:
         add_idp_to_realm(args.idp)
     elif args.center:
