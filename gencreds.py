@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+from getpass import getpass
 from pathlib import Path
 
 try:
@@ -19,7 +20,7 @@ def main():
         sys.exit(1)
 
     keycloak_backend_username = input("Enter keycloak_backend username: ")
-    keycloak_backend_password = input("Enter keycloak_backend password: ")
+    keycloak_backend_password = getpass("Enter keycloak_backend password: ")
 
     try:
         keycloak_backend_hash = generate_password_hash(keycloak_backend_password)
