@@ -6,19 +6,20 @@ encode gzip zstd
 
 redir /api /api/
 route /api/* {
-	uri strip_prefix /api
-	reverse_proxy localhost:8060 {
-		# health_uri /ok
-		# health_interval 10s
+    uri strip_prefix /api
+    reverse_proxy localhost:8060 {
+        # health_uri /ok
+        # health_interval 10s
 
-		header_up Host {host}
-		header_up X-Real-IP {remote_host}
-	}
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+    }
 }
 
 route /* {
     reverse_proxy localhost:8080 {
-        health_uri /
+        health_port 9000
+        health_uri /health/live
         health_interval 10s
 
         header_up Host {host}
@@ -27,13 +28,13 @@ route /* {
 }
 
 route {
-	respond "404 nothing here" 404
+    respond "404 nothing here" 404
 }
 
 handle_errors {
-	@502 {
-		path /session/*
-		expression `{http.error.status_code} == 502`
-	}
-	respond @502 "404 nothing here" 404
+    @502 {
+        path /session/*
+        expression `{http.error.status_code} == 502`
+    }
+    respond @502 "404 nothing here" 404
 }
