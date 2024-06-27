@@ -29,7 +29,7 @@ def main():
         keycloak_backend_hash = generate_password_hash(keycloak_backend_password, method="pbkdf2:sha256:600000")
 
     with keycloak_backend_secret.open("w") as fp:
-        fp.write(f"{keycloak_backend_username}:{keycloak_backend_hash}")
+        fp.write(f"{keycloak_backend_username}@{keycloak_backend_hash}")
 
 
 if __name__ == "__main__":
