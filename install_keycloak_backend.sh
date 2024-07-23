@@ -49,7 +49,7 @@ then
 fi
 
 # generate keycloak_backend credentials if needed
-./gencreds.sh
+./gencreds.py
 
 cd pm2 && npm i && cd ..
 sudo pm2 start pm2/ecosystem.config.js
