@@ -217,7 +217,7 @@ class Hipcloak:
         except Exception as e:
             print(f"Error retrieving members for group '{group_id}': {str(e)}")
             return None
-    
+
     def get_group_details_from_path(self, group_path):
         """
         Retrieve details of a group in the Keycloak realm by its path.
@@ -234,12 +234,12 @@ class Hipcloak:
             If the group does not exist, it prints a message and returns None.
         """
         try:
-            group_info = self._kc_admin.get_group_by_path(group_path)
-            if group_info:
-                return group_info
-            else:
+            group = self._kc_admin.get_group_by_path(group_path)
+            if not group:
                 print(f"Group not found at path '{group_path}'.")
-                return None
+                return
+
+            return self._kc_admin.get_group(group["id"])
         except Exception as e:
             print(f"Error retrieving group details from path '{group_path}': {str(e)}")
             return None
