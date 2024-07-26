@@ -3,14 +3,15 @@
 Keycloak install and backend API to manage groups CRUD in Keycloak
 
 ## Machine preparation
-- Install `docker` using this [guide](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04). Don't forget to enable the docker service using `sudo systemctl enable docker`.
+
+Install `docker` using this [guide](https://docs.docker.com/engine/install/ubuntu/). Don't forget to enable the docker service using `sudo systemctl enable docker`.
 
 ## Keycloak Install
 
 - Copy the `.env.template` to `.env`
 - Copy the Keycloak backend environment template file with `cp keycloak_backend/keycloak_backend.env.template keycloak_backend/keycloak_backend.env` and modify the `BACKEND_DOMAIN` variable to the domain on which the Keycloak backend is will be hosted.
 
-- `docker compose up -d`
+- `docker compose up --wait`
 
 ## Keycloak Backend Flask Application
 
@@ -82,21 +83,24 @@ This README provides a basic overview of the application's functionality and usa
 
 ## Keycloak Toolbox
 
-:warning: This toolbox in a work in progress :warning: 
+:warning: This toolbox in a work in progress :warning:
 
-In order to facilitate realm deployment you can use the keycloak_toolbox.py file :
+In order to facilitate realm deployment you can use the `keycloak_toolbox.py` file :
 
 - Copy the template file
+
 ```bash
 cp new_realm_data.yaml.template new_realm_data.yaml
-```    
+```
 
 - Update the values inside the yaml according to your installation
 
 - Run the function to setup your keycloak
+
 ```python
 python3 keycloak_toolbox.py -r new_realm_data.yaml
-```    
+```
+
 ## Acknowledgement
 
 This research was supported by the EBRAINS research infrastructure, funded from the European Union’s Horizon 2020 Framework Programme for Research and Innovation under the Specific Grant Agreement No. 945539 (Human Brain Project SGA3).

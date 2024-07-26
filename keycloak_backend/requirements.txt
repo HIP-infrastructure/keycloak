@@ -1,5 +1,5 @@
 # gunicorn
-gunicorn
+gunicorn>=22.0,<23
 
 # requests
 requests
@@ -23,7 +23,7 @@ pyyaml
 gevent
 
 #python-keycloak
-python-keycloak
+python-keycloak>=4.2,<5
 
 #httpx
 httpx
