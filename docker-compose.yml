@@ -1,64 +1,70 @@
-version: '3'
-
 volumes:
   postgres_data:
-      driver: local
+    driver: local
 
 services:
   postgres:
-      image: postgres
-      environment:
-        POSTGRES_DB: keycloak
-        POSTGRES_USER: keycloak
-        POSTGRES_PASSWORD: ${DB_PASSWORD}
-        PGDATA: /var/lib/postgresql/data/pgdata
-      volumes:
-        - ./postgres_data:/var/lib/postgresql/data
-      restart: always
+    image: postgres:15.3
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   keycloak:
-      container_name: keycloak
-      image: quay.io/keycloak/keycloak:21.1.2
-      command: --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start
-      # command: start-dev
-      environment:
-        KC_FEATURES:
-          authorization
-          token-exchange
-          docker
-          impersonation
-          scripts
-          upload-scripts
-          web-authn
-          client-policies
-          dynamic-scopes
-        KC_DB: postgres
-        KC_DB_URL_HOST: postgres
-        KC_DB_USERNAME: ${DB_USER}        
-        KC_DB_PASSWORD: ${DB_PASSWORD}
-        DB_DATABASE: keycloak
-        DB_SCHEMA: public
-        KEYCLOAK_USER: ${KEYCLOAK_USER}
-        KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-        KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-        KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-        #when in start-dev mode
-        # KEYCLOAK_FRONTEND_URL: ${KEYCLOAK_HOSTNAME}
-        #try with cert keys
-        KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
-        KC_HOSTNAME_ADMIN: ${KEYCLOAK_HOSTNAME}
-        #INFORMATION for KC_PROXY: none is the supposed default value, but if not specified here we
-        #can not access the admin console. When using caddy use edge, it automatically 
-        #sets http.enabled=true and http.proxy-address-forwarding=true
-        KC_PROXY: 'edge'
-#        KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/tls.crt
-#        KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/tls.key
-      ports:
-        - 127.0.0.1:8080:8080
-        - 127.0.0.1:8443:8443
-      depends_on:
-        - postgres
-      volumes:
-#        - ./certs/fullchain.pem:/etc/x509/https/tls.crt
-#        - ./certs/privkey.pem:/etc/x509/https/tls.key
-        - ./chuv-theme:/opt/keycloak/themes/chuv-theme
-      restart: always
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:25.0
+    command: --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start
+    # command: start-dev
+    environment:
+      KC_FEATURES: authorization:v1,token-exchange:v1,docker:v1,impersonation:v1,scripts:v1,web-authn:v1,client-policies:v1,dynamic-scopes:v1
+      KC_DB: postgres
+      KC_DB_USERNAME: ${DB_USER}
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+      KC_DB_SCHEMA: public
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloak
+      KEYCLOAK_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      #when in start-dev mode
+      # KEYCLOAK_FRONTEND_URL: ${KEYCLOAK_HOSTNAME}
+      #try with cert keys
+      KC_HOSTNAME: https://${KEYCLOAK_HOSTNAME}/
+      KC_HOSTNAME_ADMIN: https://${KEYCLOAK_HOSTNAME}/
+      #INFORMATION for KC_PROXY: none is the supposed default value, but if not specified here we
+      #can not access the admin console. When using caddy use edge, it automatically
+      #sets http.enabled=true and http.proxy-address-forwarding=true
+      #KC_PROXY: "edge" # deprecated
+      KC_PROXY_HEADERS: "xforwarded"
+      KC_HTTP_ENABLED: "true"
+      #KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/tls.crt
+      #KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/tls.key
+      KC_HEALTH_ENABLED: 'true'
+    ports:
+      - 127.0.0.1:8080:8080
+      - 127.0.0.1:8443:8443
+      - 127.0.0.1:9000:9000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      #        - ./certs/fullchain.pem:/etc/x509/https/tls.crt
+      #        - ./certs/privkey.pem:/etc/x509/https/tls.key
+      - ./chuv-theme:/opt/keycloak/themes/chuv-theme
+    restart: always
+    healthcheck: # https://github.com/keycloak/keycloak/issues/17273#issuecomment-1693549331
+      test: cat /proc/net/tcp6 | grep '00000000000000000000000000000000:1F90 00000000000000000000000000000000:0000' || exit 1
+      interval: 5s
+      timeout: 2s
+      retries: 20
+      start_period: 120s
