@@ -22,7 +22,7 @@ module.exports = {
   {
     script: gunicorn,
     name: 'gunicorn_keycloak_backend',
-    args: '--workers 3 --timeout 120 --bind 127.0.0.1:8060 --pythonpath keycloak_backend keycloak_backend:app',
+    args: '--workers 3 --timeout 120 --bind 127.0.0.1:8081 --pythonpath keycloak_backend keycloak_backend:app',
     cwd: relative('..'),
     watch: relative('../keycloak_backend'),
     interpreter: 'python3'	  
