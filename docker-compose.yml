@@ -55,7 +55,7 @@ services:
 #        KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/tls.crt
 #        KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/tls.key
       ports:
-        - 127.0.0.1:8080:8080
+        - 8080:8080
       depends_on:
         - postgres
       volumes:
