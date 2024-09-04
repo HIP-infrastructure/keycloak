@@ -21,9 +21,11 @@ client:
   redirectUris:
     - "http://hip.local/*"
     - "http://*"
+    - "https://*"
   webOrigins:
     - "http://hip.local"
     - "http://*"
+    - "https://*"
 
 service_client:
   clientId: "hipsc"
@@ -35,6 +37,7 @@ service_client:
   redirectUris:
     - "http://hip.local/*"
     - "http://*"
+    - "https://*"
   webOrigins:
     - "/*"
 
