@@ -4,7 +4,7 @@ volumes:
 
 services:
   postgres:
-    image: postgres:16.3
+    image: postgres:16.4
     shm_size: 128mb
     environment:
       POSTGRES_DB: keycloak
@@ -21,7 +21,7 @@ services:
       retries: 5
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:25.0
+    image: quay.io/keycloak/keycloak:25.0.6
     command: --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start
     # command: start-dev
     environment:
