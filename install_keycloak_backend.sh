@@ -7,13 +7,15 @@ then
     echo "jq installed."
 fi
 
-if ! command -v pip3 &> /dev/null
+if ! python3 -c "import ensurepip" &> /dev/null
 then
-    echo "pip3 could not be found, installing..."
-    sudo apt-get update && sudo apt-get install -y python3-pip
-    echo "pip3 installed."
+    echo "python3-venv could not be found, installing..."
+    sudo apt-get update && sudo apt-get install -y python3-venv
+    echo "python3-venv installed."
 fi
-sudo pip3 install -r keycloak_backend/requirements.txt
+
+python3 -m venv keycloak_backend/venv
+./keycloak_backend/venv/bin/pip install -r keycloak_backend/requirements.txt
 
 if ! command -v caddy &> /dev/null
 then
@@ -34,8 +36,8 @@ then
     sudo apt-get install -y ca-certificates curl gnupg
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-    NODE_MAJOR=21
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list 
+    NODE_MAJOR=20
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
     sudo apt-get update
     sudo apt-get install nodejs -y
     echo "npm installed."
