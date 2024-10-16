@@ -496,7 +496,7 @@ def get_all_groups(root_path):
         keycloak_adm.switch_realm(realm_name)
 
         #group_path = "/HIP-dev-projects"
-        all_groups = keycloak_adm.get_group_details_from_path(root_path)
+        all_groups = keycloak_adm.get_group_details_from_path(root_path, full_hierarchy=True)
 
         groups_info = []
 
