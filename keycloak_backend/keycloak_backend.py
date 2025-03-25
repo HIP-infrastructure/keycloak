@@ -226,7 +226,7 @@ def get_user_groups(root_path, user_name):
         group_info = {
             "name": current_group['name'],
             "isPublic": current_group['attributes'].get('isPublic', ['False'])[0].lower() == 'true',
-            "description": "",
+            "description": current_group.get('attributes', {}).get('description', [''])[0],
             "members": [],
             "admins":[]
         }
@@ -369,13 +369,13 @@ def create_group():
         admin_name = content['adminId']
         role_name = content['name']
         root_name = content['root']
-         # Provide a default value if description is missing
+        # Provide a default value if description is missing
         role_description = content.get('description', '')
         # Provide a default value if isPublic is missing
         is_public_space = content.get('isPublic', False)
 
         # Create the main role and the administrators role
-        wanted_role = keycloak_adm.create_group(role_name, root_name, is_public_space)
+        wanted_role = keycloak_adm.create_group(role_name, root_name, is_public_space, role_description)
         wanted_role_admin = keycloak_adm.create_group("administrators", root_name + "/" + role_name)
 
         # Create corresponding role for the collab : needs to be prefixed with "group-"" at the moment 
@@ -506,7 +506,7 @@ def get_all_groups(root_path):
                 group_info = {
                     'name': current_group.get('name', ''),
                     'isPublic': current_group['attributes'].get('isPublic', ['False'])[0].lower() == 'true',
-                    'description': '',
+                    'description': current_group.get('attributes', {}).get('description', [''])[0],
                     'members': [member.get('username', '') for member in keycloak_adm.get_members_from_group(current_group.get('id', ''))],
                     'admins': []
                 }
@@ -704,7 +704,7 @@ def get_group_info(root_path, group_name):
         group_info = {
             'title': group_id['name'],
             "isPublic": group_id['attributes'].get('isPublic', ['False'])[0].lower() == 'true',
-            'description': '',
+            'description': group_id.get('attributes', {}).get('description', [''])[0],
             'members': [member['username'] for member in keycloak_adm.get_members_from_group(group_id['id'])],
             'admins': [],
         }
