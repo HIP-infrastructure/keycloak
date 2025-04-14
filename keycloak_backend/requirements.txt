@@ -23,7 +23,7 @@ pyyaml
 gevent
 
 # python-keycloak
-python-keycloak>=4.2,<5
+python-keycloak>=5.3,<6
 
 # httpx
 httpx
