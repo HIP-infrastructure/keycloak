@@ -21,8 +21,8 @@ services:
       retries: 5
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:26.1.4
-    command: --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start
+    image: quay.io/keycloak/keycloak:26.2.2
+    command: start
     # command: start-dev
     environment:
       KC_FEATURES: authorization:v1,token-exchange:v1,docker:v1,impersonation:v1,scripts:v1,web-authn:v1,client-policies:v1,dynamic-scopes:v1
