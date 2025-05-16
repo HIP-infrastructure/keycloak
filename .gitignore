@@ -7,3 +7,4 @@ pm2/node_modules
 keycloak_backend/*.env
 keycloak_backend/api/*.yaml
 keycloak_backend/venv
+*.sql.gz
