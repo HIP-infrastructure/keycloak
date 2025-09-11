@@ -252,7 +252,7 @@ class Hipcloak:
             print(f"Error creating root group '{group_title}': {str(e)}")
             return None
 
-    def create_group(self, group_title, parent_name="", isPublicSpace=False, description="", isCollab=True):
+    def create_group(self, group_title, parent_name="", isPublicSpace=False, description="", isCollab=True, hasDta=False, hasEthics=False):
         """
         Create a new group in the Keycloak realm with the provided information.
 
@@ -262,7 +262,8 @@ class Hipcloak:
             isPublicSpace (bool, optional): A flag indicating whether the group is a public space. Default is False.
             description (str, optional): A description for the group. Default is an empty string.
             isCollab (bool, optional): A flag indicating whether the group is a collaborative group. Default is True.
-
+            hasDta (bool, optional): A flag indicating whether the group has DTA. Default is False.
+            hasEthics (bool, optional): A flag indicating whether the group has Ethics. Default is False.
         Returns:
             dict or None: A dictionary containing group details if the group is successfully created, or None if an error occurs.
         """
@@ -275,6 +276,12 @@ class Hipcloak:
                     ],
                     "description": [
                         description
+                    ],
+                    "hasDta": [
+                        str(hasDta)
+                    ],
+                    "hasEthics": [
+                        str(hasEthics)
                     ]
                 }
             }
