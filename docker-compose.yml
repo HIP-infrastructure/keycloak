@@ -4,7 +4,7 @@ volumes:
 
 services:
   postgres:
-    image: postgres:16.8
+    image: postgres:16.10
     shm_size: 128mb
     environment:
       POSTGRES_DB: keycloak
@@ -15,13 +15,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
       interval: 10s
       timeout: 5s
       retries: 5
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:26.2.4
+    image: quay.io/keycloak/keycloak:26.4.1
     command: start
     # command: start-dev
     environment:
