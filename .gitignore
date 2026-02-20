@@ -8,3 +8,4 @@ keycloak_backend/*.env
 keycloak_backend/api/*.yaml
 keycloak_backend/venv
 *.sql.gz
+postgres_data/*
