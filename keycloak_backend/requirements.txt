@@ -1,5 +1,5 @@
 # gunicorn
-gunicorn>=26,<27
+gunicorn>=27,<28
 
 # requests
 requests
